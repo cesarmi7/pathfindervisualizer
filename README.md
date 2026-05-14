@@ -1,38 +1,70 @@
-# Pathfinding Visualizer
+# 🧭 Pathfinding Visualizer
 
-## Overview
+A clean and interactive pathfinding visualizer built with React. This project lets users draw walls, move the start and finish nodes, choose between different pathfinding algorithms, and watch how each algorithm explores the grid.
 
-This project is a visual demonstration of the Dijkstra algorithm, a pathfinding algorithm that finds the shortest path between two nodes in a graph. It's built using React and showcases interactive visualization of the algorithm in action. Users can visualize the algorithm's step-by-step process in finding the most optimal path.
+## 📌 Overview
 
-## Features
+This project is a visual tool for understanding how pathfinding algorithms work. The user can interact with a grid by placing walls, dragging the start and finish nodes, and selecting an algorithm from the dropdown menu.
 
-- **Interactive Grid**: A grid where each cell represents a node in the graph. Users can interact with the grid by adding walls, which the algorithm will then navigate around.
-- **Start and Finish Nodes**: Designated starting and ending points for the pathfinding.
-- **Visualization Controls**: Buttons to start the visualization and reset the grid to its initial state.
-- **Real-Time Algorithm Visualization**: Watch as the algorithm explores different paths and ultimately finds the shortest one.
+Once the visualization starts, the app shows the order in which nodes are visited and then highlights the final path.
 
-## How It Works
+The project currently supports:
 
-The project consists of several key components:
+- 🔵 Dijkstra
+- 🌊 Breadth-First Search
+- 🌲 Depth-First Search
+- ⭐ A* Search
 
-- **PathfindingVisualizer**: The main React component that manages the state of the grid and handles user interactions.
-- **Node**: Represents a single cell in the grid. It can be a start node, end node, a wall, or a regular node.
-- **Dijkstra's Algorithm Implementation**: The core algorithm that finds the shortest path. It's implemented in `dijkstra.js`.
+## ✨ Features
 
-When the user clicks "Visualize Dijkstra's Algorithm", the algorithm starts from the start node and explores all possible paths until it reaches the finish node. The grid visually updates to show the progress of the algorithm, highlighting visited nodes and the final shortest path.
+- 🧱 Interactive grid for drawing walls
+- 🟧 Movable start node
+- 🟥 Movable finish node
+- 🔽 Algorithm dropdown selector
+- 🔵 Animated visited nodes
+- 🟨 Animated final path
+- 🧹 Clear Path button that resets the board and removes all walls
+- 🎨 Simple and modern UI design
+- 💻 Responsive layout with a clean visual style
 
-## How to Use
+## 🧠 Algorithms Included
 
-1. **Clone the Repository**: Clone this repo to your local machine.
-2. **Install Dependencies**: Run `npm install` to install the required dependencies.
-3. **Run the Project**: Execute `npm start` to run the app in development mode.
-4. **Interact with the Grid**: Click on the grid to add walls, and use the provided button to start the visualization.
+### 🔵 Dijkstra
 
-## Technologies Used
+Dijkstra finds the shortest path by checking the closest available node first. Since this grid uses equal weights for every move, Dijkstra will find the shortest path.
 
-- **React**: For building the user interface.
-- **CSS**: For styling the components.
+### 🌊 Breadth-First Search
 
-## Contributing
+Breadth-First Search explores the grid level by level. In an unweighted grid like this one, BFS also finds the shortest path.
 
-Feel free to fork this project, make changes, and open a pull request with any improvements or additional features!
+### 🌲 Depth-First Search
+
+Depth-First Search explores as far as possible in one direction before backtracking. DFS is useful to visualize exploration, but it does not always find the shortest path.
+
+### ⭐ A* Search
+
+A* Search uses a heuristic to guide the search toward the finish node. This project uses Manhattan Distance, which works well for a grid that only allows movement up, down, left, and right.
+
+## 🎮 How to Use
+
+1. 🔽 Select an algorithm from the dropdown menu.
+2. 🧱 Click and drag on the grid to create walls.
+3. 🟧 Drag the orange start node or 🟥 red finish node to move them.
+4. ▶️ Click the visualize button to run the selected algorithm.
+5. 🧹 Click Clear Path to reset the board and remove all walls.
+
+## 📁 Project Structure
+
+```txt
+src
+├── algorithms
+│   └── pathfindingAlgorithms.js
+├── PathfindingVisualizer
+│   ├── Node
+│   │   ├── Node.jsx
+│   │   └── Node.css
+│   ├── PathfindingVisualizer.jsx
+│   └── PathfindingVisualizer.css
+├── App.js
+├── App.css
+└── index.js
