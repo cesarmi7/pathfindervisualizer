@@ -26,7 +26,6 @@ export default class PathfindingVisualizer extends Component {
       finishNodeCol: DEFAULT_FINISH_NODE_COL,
       selectedAlgorithm: 'dijkstra',
       isAnimating: false,
-      statusMessage: '',
     };
 
     this.timeouts = [];
@@ -83,7 +82,6 @@ export default class PathfindingVisualizer extends Component {
         grid: cleanGrid,
         mouseIsPressed: true,
         movingNodeType: 'start',
-        statusMessage: '',
       });
       return;
     }
@@ -93,7 +91,6 @@ export default class PathfindingVisualizer extends Component {
         grid: cleanGrid,
         mouseIsPressed: true,
         movingNodeType: 'finish',
-        statusMessage: '',
       });
       return;
     }
@@ -104,7 +101,6 @@ export default class PathfindingVisualizer extends Component {
       grid: newGrid,
       mouseIsPressed: true,
       movingNodeType: 'wall',
-      statusMessage: '',
     });
   }
 
@@ -124,7 +120,6 @@ export default class PathfindingVisualizer extends Component {
         grid: newGrid,
         startNodeRow: row,
         startNodeCol: col,
-        statusMessage: '',
       });
 
       return;
@@ -139,7 +134,6 @@ export default class PathfindingVisualizer extends Component {
         grid: newGrid,
         finishNodeRow: row,
         finishNodeCol: col,
-        statusMessage: '',
       });
 
       return;
@@ -147,6 +141,7 @@ export default class PathfindingVisualizer extends Component {
 
     if (movingNodeType === 'wall') {
       const newGrid = getNewGridWithWallAdded(grid, row, col);
+
       this.setState({ grid: newGrid });
     }
   }
@@ -158,7 +153,7 @@ export default class PathfindingVisualizer extends Component {
     });
   }
 
-  clearPath(callback) {
+  clearAnimation(callback) {
     this.clearAllTimeouts();
 
     const {
@@ -181,33 +176,33 @@ export default class PathfindingVisualizer extends Component {
       {
         grid: cleanGrid,
         isAnimating: false,
-        statusMessage: '',
       },
       callback
     );
   }
 
-  resetGrid() {
+  clearPath() {
     this.clearAllTimeouts();
 
-    const grid = getInitialGrid(
-      DEFAULT_START_NODE_ROW,
-      DEFAULT_START_NODE_COL,
-      DEFAULT_FINISH_NODE_ROW,
-      DEFAULT_FINISH_NODE_COL
+    const {
+      startNodeRow,
+      startNodeCol,
+      finishNodeRow,
+      finishNodeCol,
+    } = this.state;
+
+    const emptyGrid = getInitialGrid(
+      startNodeRow,
+      startNodeCol,
+      finishNodeRow,
+      finishNodeCol
     );
 
     this.setState({
-      grid,
+      grid: emptyGrid,
       mouseIsPressed: false,
       movingNodeType: null,
-      startNodeRow: DEFAULT_START_NODE_ROW,
-      startNodeCol: DEFAULT_START_NODE_COL,
-      finishNodeRow: DEFAULT_FINISH_NODE_ROW,
-      finishNodeCol: DEFAULT_FINISH_NODE_COL,
-      selectedAlgorithm: 'dijkstra',
       isAnimating: false,
-      statusMessage: '',
     });
   }
 
@@ -254,7 +249,6 @@ export default class PathfindingVisualizer extends Component {
     if (!nodesInShortestPathOrder.length) {
       this.setState({
         isAnimating: false,
-        statusMessage: 'No path found. Try removing some walls.',
       });
       return;
     }
@@ -270,12 +264,8 @@ export default class PathfindingVisualizer extends Component {
         }
 
         if (i === nodesInShortestPathOrder.length - 1) {
-          const { selectedAlgorithm } = this.state;
-          const algorithm = ALGORITHMS[selectedAlgorithm];
-
           this.setState({
             isAnimating: false,
-            statusMessage: algorithm.note,
           });
         }
       }, 40 * i);
@@ -287,7 +277,7 @@ export default class PathfindingVisualizer extends Component {
   visualizeAlgorithm() {
     if (this.state.isAnimating) return;
 
-    this.clearPath(() => {
+    this.clearAnimation(() => {
       const {
         grid,
         startNodeRow,
@@ -301,12 +291,21 @@ export default class PathfindingVisualizer extends Component {
       const finishNode = grid[finishNodeRow][finishNodeCol];
 
       const algorithm = ALGORITHMS[selectedAlgorithm];
-      const visitedNodesInOrder = algorithm.run(grid, startNode, finishNode);
+
+      const visitedNodesInOrder = algorithm.run(
+        grid,
+        startNode,
+        finishNode
+      );
+
       const nodesInShortestPathOrder =
         getNodesInShortestPathOrder(finishNode);
 
       this.setState({ isAnimating: true }, () => {
-        this.animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder);
+        this.animateAlgorithm(
+          visitedNodesInOrder,
+          nodesInShortestPathOrder
+        );
       });
     });
   }
@@ -317,7 +316,6 @@ export default class PathfindingVisualizer extends Component {
       mouseIsPressed,
       isAnimating,
       selectedAlgorithm,
-      statusMessage,
     } = this.state;
 
     const algorithm = ALGORITHMS[selectedAlgorithm];
@@ -326,7 +324,9 @@ export default class PathfindingVisualizer extends Component {
       <main className="visualizerPage">
         <section className="heroPanel">
           <p className="eyebrow">Pathfinding Visualizer</p>
+
           <h1>{algorithm.label}</h1>
+
           <p>
             Draw walls, drag the start or finish node, choose an algorithm,
             then visualize how the path is found.
@@ -340,7 +340,6 @@ export default class PathfindingVisualizer extends Component {
               onChange={(event) =>
                 this.setState({
                   selectedAlgorithm: event.target.value,
-                  statusMessage: '',
                 })
               }
             >
@@ -356,7 +355,9 @@ export default class PathfindingVisualizer extends Component {
               onClick={() => this.visualizeAlgorithm()}
               disabled={isAnimating}
             >
-              {isAnimating ? 'Visualizing...' : `Visualize ${algorithm.label}`}
+              {isAnimating
+                ? 'Visualizing...'
+                : `Visualize ${algorithm.label}`}
             </button>
 
             <button
@@ -365,18 +366,7 @@ export default class PathfindingVisualizer extends Component {
             >
               Clear Path
             </button>
-
-            <button
-              className="secondaryBtn"
-              onClick={() => this.resetGrid()}
-            >
-              Reset Board
-            </button>
           </div>
-
-          {statusMessage && (
-            <p className="statusMessage">{statusMessage}</p>
-          )}
         </section>
 
         <section className="boardPanel">
@@ -426,6 +416,7 @@ export default class PathfindingVisualizer extends Component {
                       <Node
                         key={`${row}-${col}`}
                         col={col}
+                        row={row}
                         isFinish={isFinish}
                         isStart={isStart}
                         isWall={isWall}
@@ -439,7 +430,6 @@ export default class PathfindingVisualizer extends Component {
                           this.handleMouseEnter(row, col)
                         }
                         onMouseUp={() => this.handleMouseUp()}
-                        row={row}
                       ></Node>
                     );
                   })}
@@ -461,7 +451,14 @@ const getInitialGrid = (startRow, startCol, finishRow, finishCol) => {
 
     for (let col = 0; col < 50; col++) {
       currentRow.push(
-        createNode(col, row, startRow, startCol, finishRow, finishCol)
+        createNode(
+          col,
+          row,
+          startRow,
+          startCol,
+          finishRow,
+          finishCol
+        )
       );
     }
 
@@ -471,7 +468,14 @@ const getInitialGrid = (startRow, startCol, finishRow, finishCol) => {
   return grid;
 };
 
-const createNode = (col, row, startRow, startCol, finishRow, finishCol) => {
+const createNode = (
+  col,
+  row,
+  startRow,
+  startCol,
+  finishRow,
+  finishCol
+) => {
   return {
     col,
     row,
@@ -487,11 +491,20 @@ const createNode = (col, row, startRow, startCol, finishRow, finishCol) => {
   };
 };
 
-const getCleanGrid = (grid, startRow, startCol, finishRow, finishCol) => {
+const getCleanGrid = (
+  grid,
+  startRow,
+  startCol,
+  finishRow,
+  finishCol
+) => {
   return grid.map((row) =>
     row.map((node) => {
-      const isStart = node.row === startRow && node.col === startCol;
-      const isFinish = node.row === finishRow && node.col === finishCol;
+      const isStart =
+        node.row === startRow && node.col === startCol;
+
+      const isFinish =
+        node.row === finishRow && node.col === finishCol;
 
       return {
         ...node,
@@ -541,14 +554,25 @@ const getNewGridWithWallAdded = (grid, row, col) => {
   return newGrid;
 };
 
-const getGridWithMovedSpecialNode = (grid, nodeType, newRow, newCol) => {
+const getGridWithMovedSpecialNode = (
+  grid,
+  nodeType,
+  newRow,
+  newCol
+) => {
   const targetNode = grid[newRow][newCol];
 
-  if (nodeType === 'start' && (targetNode.isFinish || targetNode.isWall)) {
+  if (
+    nodeType === 'start' &&
+    (targetNode.isFinish || targetNode.isWall)
+  ) {
     return grid;
   }
 
-  if (nodeType === 'finish' && (targetNode.isStart || targetNode.isWall)) {
+  if (
+    nodeType === 'finish' &&
+    (targetNode.isStart || targetNode.isWall)
+  ) {
     return grid;
   }
 

@@ -2,33 +2,31 @@ export const ALGORITHMS = {
   dijkstra: {
     label: 'Dijkstra',
     run: dijkstra,
-    note: 'Guarantees the shortest path on this unweighted grid.',
   },
   bfs: {
     label: 'Breadth-First Search',
     run: bfs,
-    note: 'Guarantees the shortest path on this unweighted grid.',
   },
   dfs: {
     label: 'Depth-First Search',
     run: dfs,
-    note: 'Explores deeply first, but does not guarantee the shortest path.',
   },
   astar: {
     label: 'A* Search',
     run: astar,
-    note: 'Uses a heuristic to search faster and still finds the shortest path here.',
   },
 };
 
 function dijkstra(grid, startNode, finishNode) {
   const visitedNodesInOrder = [];
+
   startNode.distance = 0;
 
   const unvisitedNodes = getAllNodes(grid);
 
   while (unvisitedNodes.length) {
     sortNodesByDistance(unvisitedNodes);
+
     const closestNode = unvisitedNodes.shift();
 
     if (closestNode.isWall) continue;
@@ -117,10 +115,12 @@ function astar(grid, startNode, finishNode) {
 
   startNode.distance = 0;
   startNode.totalDistance = manhattanDistance(startNode, finishNode);
+
   openSet.push(startNode);
 
   while (openSet.length) {
     sortNodesByTotalDistance(openSet);
+
     const currentNode = openSet.shift();
 
     if (currentNode.isWall) continue;
@@ -134,7 +134,7 @@ function astar(grid, startNode, finishNode) {
     const neighbors = getNeighbors(currentNode, grid);
 
     for (const neighbor of neighbors) {
-      if (neighbor.isWall) continue;
+      if (neighbor.isWall || neighbor.isVisited) continue;
 
       const tentativeDistance = currentNode.distance + 1;
 
@@ -165,7 +165,7 @@ function getUnvisitedNeighbors(node, grid) {
 
 function getNeighbors(node, grid) {
   const neighbors = [];
-  const { col, row } = node;
+  const { row, col } = node;
 
   if (row > 0) neighbors.push(grid[row - 1][col]);
   if (row < grid.length - 1) neighbors.push(grid[row + 1][col]);
